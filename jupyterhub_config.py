@@ -10,20 +10,10 @@ c = get_config()
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 c.DockerSpawner.image = 'jupyter/minimal-notebook:77e10160c7ef'
 c.DockerSpawner.image_whitelist = {'RServer': 'pinsleepe/rserver_singleuser:v0.5',
-                                   'python': 'pinsleepe/python_singleuser:v0.3'}
+                                   'JupyterLab': 'pinsleepe/python_singleuser:v0.3.1'}
 
 spawn_cmd = os.environ.get('DOCKER_SPAWN_CMD', "start-singleuser.sh")
 c.DockerSpawner.extra_create_kwargs.update({ 'command': spawn_cmd })
-# c.DockerSpawner.cmd = ['jupyter-labhub']
-c.DockerSpawner.environment = { 'JUPYTER_ENABLE_LAB': 'yes' }
-
-
-def pre_spawn(spawner):
-    if __name__ == '__main__':
-        spawner.environment['mynameis'] = spawner.user.name
-
-
-c.DockerSpawner.pre_spawn_hook = pre_spawn
 
 network_name = os.environ['DOCKER_NETWORK_NAME']
 c.DockerSpawner.use_internal_ip = True
@@ -81,26 +71,3 @@ with open(os.path.join(pwd, 'userlist')) as f:
         if len(parts) > 1 and parts[1] == 'admin':
             admin.add(name)
 
-
-# class GenericEnvOAuthenticator(GenericOAuthenticator):
-#     @gen.coroutine
-#     def pre_spawn_start(self, user, spawner):
-#
-#
-#         auth_state = yield user.get_auth_state()
-#         self.log.info(">>>>>>>USER = %s", user)
-#         self.log.info(">>>>>>>AUTH_STATE = %s", auth_state)
-#         if not auth_state:
-#             return
-#         spawner.environment['ACCESS_TOKEN'] = auth_state['access_token']
-#         spawner.environment['REFRESH_TOKEN'] = auth_state['refresh_token']
-#
-#
-#     @gen.coroutine
-#     def authenticate(self, handler, data):
-#         self.log.info("============ In GenericEnvOAuthenticator.authenticate() ==========")
-#         res = yield super().authenticate(handler, data)
-#         self.log.info("===== auth.result = %s", res)
-#         return res
-#
-# c.JupyterHub.authenticator_class = GenericEnvOAuthenticator

@@ -31,11 +31,14 @@ c.DockerSpawner.debug = True
 c.DockerSpawner.environment.update({'TEST_PATH': '/some/path' })
 
 # User containers will access hub by container name on the Docker network
-c.JupyterHub.hub_ip = 'jupyterhub'
-c.JupyterHub.hub_port = 8080
+######Private port:
+c.JupyterHub.hub_port = 8989
+c.JupyterHub.hub_ip = '0.0.0.0'
+c.JupyterHub.ip = '0.0.0.0'
+######Public port:
+c.JupyterHub.port = 8000
 
 # TLS config
-c.JupyterHub.port = 443
 c.JupyterHub.ssl_key = os.environ['SSL_KEY']
 c.JupyterHub.ssl_cert = os.environ['SSL_CERT']
 

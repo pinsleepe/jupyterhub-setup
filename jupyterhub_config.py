@@ -9,8 +9,8 @@ c = get_config()
 # Spawn single-user servers as Docker containers
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 c.DockerSpawner.image = 'jupyter/minimal-notebook:77e10160c7ef'
-c.DockerSpawner.image_whitelist = {'RServer': 'pinsleepe/rserver_singleuser:v0.5',
-                                   'JupyterLab': 'pinsleepe/python_singleuser:v0.3.1'}
+c.DockerSpawner.image_whitelist = {'RServer': 'pinsleepe/rserver_singleuser:v0.5.1',
+                                   'JupyterLab': 'pinsleepe/python_singleuser:v0.3.2'}
 
 spawn_cmd = os.environ.get('DOCKER_SPAWN_CMD', "start-singleuser.sh")
 c.DockerSpawner.extra_create_kwargs.update({ 'command': spawn_cmd })
@@ -45,7 +45,43 @@ c.JupyterHub.ssl_cert = os.environ['SSL_CERT']
 # Authenticate users with GitHub OAuth
 c.JupyterHub.authenticator_class = 'oauthenticator.GitHubOAuthenticator'
 c.GitHubOAuthenticator.oauth_callback_url = os.environ['OAUTH_CALLBACK_URL']
-# c.Authenticator.enable_auth_state = True
+
+from oauthenticator.github import GitHubOAuthenticator
+from tornado import gen
+import warnings
+
+# define our OAuthenticator with `.pre_spawn_start`
+# for passing auth_state into the user environment
+
+
+class GitHubEnvAuthenticator(GitHubOAuthenticator):
+
+    @gen.coroutine
+    def pre_spawn_start(self, user, spawner):
+        auth_state = yield user.get_auth_state()
+        import pprint
+        pprint.pprint(auth_state)
+        if not auth_state:
+            # user has no auth state
+            return
+        # define some environment variables from auth_state
+        spawner.environment['GITHUB_TOKEN'] = auth_state['access_token']
+        spawner.environment['GITHUB_USER'] = auth_state['github_user']['login']
+        spawner.environment['GITHUB_EMAIL'] = auth_state['github_user']['email']
+
+
+c.GitHubOAuthenticator.scope = ['read:org', 'repo', 'user:email']
+c.JupyterHub.authenticator_class = GitHubEnvAuthenticator
+
+# enable authentication state
+c.GitHubOAuthenticator.enable_auth_state = True
+
+if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
+    warnings.warn(
+        "Need JUPYTERHUB_CRYPT_KEY env for persistent auth_state.\n"
+        "    export JUPYTERHUB_CRYPT_KEY=$(openssl rand -hex 32)"
+    )
+c.CryptKeeper.keys = [ os.urandom(32) ]
 
 # Persist hub data on volume mounted inside container
 data_dir = os.environ.get('DATA_VOLUME_CONTAINER', '/data')

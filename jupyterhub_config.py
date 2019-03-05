@@ -9,7 +9,7 @@ c = get_config()
 # Spawn single-user servers as Docker containers
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 c.DockerSpawner.image = 'jupyter/minimal-notebook:77e10160c7ef'
-c.DockerSpawner.image_whitelist = {'RServer': 'pinsleepe/rserver_singleuser:v0.5.1',
+c.DockerSpawner.image_whitelist = {'RServer': 'pinsleepe/rserver_singleuser:v0.5.2',
                                    'JupyterLab': 'pinsleepe/python_singleuser:v0.3.2'}
 
 spawn_cmd = os.environ.get('DOCKER_SPAWN_CMD', "start-singleuser.sh")

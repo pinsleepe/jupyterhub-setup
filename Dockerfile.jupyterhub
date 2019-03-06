@@ -8,8 +8,8 @@ RUN /opt/conda/bin/conda install -yq psycopg2=2.7 && \
     /opt/conda/bin/conda clean -tipsy && \
     /opt/conda/bin/pip install --no-cache-dir \
         oauthenticator==0.8.* \
-        git+https://github.com/jupyterhub/dockerspawner.git \
-        cryptography
+	git+https://github.com/jupyterhub/dockerspawner.git@10d3a373370de4d1edfb6e9a092524d2ff768f31 \
+	cryptography
 
 # Copy TLS certificate and key
 ENV SSL_CERT /srv/jupyterhub/secrets/jupyterhub.crt

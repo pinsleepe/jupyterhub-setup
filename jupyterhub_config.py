@@ -9,7 +9,7 @@ c = get_config()
 # Spawn single-user servers as Docker containers
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 c.DockerSpawner.image = 'jupyter/minimal-notebook:77e10160c7ef'
-c.DockerSpawner.image_whitelist = {'RServer': 'pinsleepe/rserver_singleuser:v0.5.2',
+c.DockerSpawner.image_whitelist = {'RServer': 'pinsleepe/rserver_singleuser:v0.5.1',
                                    'JupyterLab': 'pinsleepe/python_singleuser:v0.3.2'}
 
 spawn_cmd = os.environ.get('DOCKER_SPAWN_CMD', "start-singleuser.sh")
@@ -28,7 +28,6 @@ c.DockerSpawner.remove_containers = True
 # For debugging arguments passed to spawned containers
 c.DockerSpawner.debug = True
 # add path to pass to singleuser
-c.DockerSpawner.environment.update({'TEST_PATH': '/some/path' })
 
 # User containers will access hub by container name on the Docker network
 ######Private port:
